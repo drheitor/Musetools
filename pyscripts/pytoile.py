@@ -249,7 +249,7 @@ genflag('derrv')
 
 #cleaning previous runs
 try:
-    os.remove('radialVelocities.dat')
+ #   os.remove('radialVelocities.dat')
     os.remove('spec2plot.tab')
 except:
     pass
