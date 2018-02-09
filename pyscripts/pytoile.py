@@ -18,7 +18,7 @@ from scipy.stats import gaussian_kde
 
 FILENAME_OUTPUT_PARAMETERS = 'parameters_apague.dat'
 # MILES=5, COELHO=4
-LIB = 5
+LIB = 4
 
 #the main program starts here
 #window and library definitions
@@ -197,24 +197,24 @@ genflag('deratmos')
 
 #cleaning previous runs
 
-try:
-    os.remove('atmosphericParameters.dat')
-except:
-    pass
+#try:
+#    os.remove('atmosphericParameters.dat')
+#except:
+#    pass
 
-try:
+#try:
     os.remove('spec2plot.tab')
-except:
-    pass
+#except:
+ #   pass
 
 
 #running etoile for each star
-for f in inlist:
-    run_etoile(f, LIB, mconf)
-    try:
-        os.remove('spec2plot.tab')
-    except:
-        pass
+#for f in inlist:
+  #  run_etoile(f, LIB, mconf)
+  #  try:
+  #      os.remove('spec2plot.tab')
+  #  except:
+  #      pass
 
 
 # In[15]:
@@ -248,30 +248,30 @@ genflag('derrv')
 
 
 #cleaning previous runs
-try:
+#try:
  #   os.remove('radialVelocities.dat')
-    os.remove('spec2plot.tab')
-except:
-    pass
+ #   os.remove('spec2plot.tab')
+#except:
+ #   pass
 
 #running etoile
-for f in inlist:
-    run_etoile(f, LIB, mconf)
-try:
-    os.remove('spec2plot.tab')
-except:
-    pass
+#for f in inlist:
+ #   run_etoile(f, LIB, mconf)
+#try:
+ #   os.remove('spec2plot.tab')
+#except:
+ #   pass
 
 
 # In[17]:
 
 #lwlim = 4790
 #uwlim = 6000
-#bestmatch = {}
-#with open('inputlist') as ipl:
-#    for row in [raw.strip().split('/') for raw in ipl]:
-#        nm = row[1].strip('.ascii')
-#        bestmatch[nm] = {'LIB': '', 'id': '', 'rv': ''}
+bestmatch = {}
+with open('inputlist') as ipl:
+    for row in [raw.strip().split('/') for raw in ipl]:
+        nm = row[1].strip('.ascii')
+        bestmatch[nm] = {'LIB': '', 'id': '', 'rv': ''}
 
 #retrieving RV values from output file
 snames = bestmatch.keys()
