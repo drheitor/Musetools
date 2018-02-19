@@ -26,7 +26,7 @@ LIB = 4
 
 #defines lim 
 lwlim = 4200
-uwlim = 6200
+uwlim = 6000
 
 
 #usefull functions 
@@ -200,15 +200,14 @@ genflag('deratmos')
 #running etoile for each star
 for f in inlist:
     run_etoile(f, LIB, mconf)
-    try:
-        os.remove('spec2plot.tab')
-    except:
-        pass
+  
 
 #getting the best matching library indexes
-os.system('rm etoile*.log')
+#os.system('rm etoile*.log')
 
-bestmatch = get_index()
+
+bestmatch = 892
+#bestmatch = get_index()
 
 #building template file
 with open('../code/dnm/templatesForCC.txt', 'w') as tplf:
@@ -220,23 +219,19 @@ with open('../code/dnm/templatesForCC.txt', 'w') as tplf:
 # derive radial velocities with cross-correlation
 
 #configuring etoile method
-mconf['deratmos'] = 0
-mconf['derrv'] = 1
+mconf = {'derrv': 1, 'deratmos': 0, 'compare': 'none'}
+
 genflag('derrv')
 
 
 #running etoile to DERIVE RADIAL VELOCITY
 for f in inlist:
     run_etoile(f, LIB, mconf)
- try:
-    os.remove('spec2plot.tab')
- except:
-    pass
 
 
 #NOW create radualVelocities.dat
 
-# Correct VR
+# Correct RV
 
 bestmatch = {}
 with open('inputlist') as ipl:
@@ -312,11 +307,6 @@ mconf['compare'] = 'none'
 #FLAG creation 
 genflag('deratmos')
 
-#running etoile for deriving the atmospheric parameters
-try:
-    os.remove('atmosphericParameters.dat')
-except:
-    pass
 
 for f in inlist:
     run_etoile('rv_'+f, LIB, mconf)
