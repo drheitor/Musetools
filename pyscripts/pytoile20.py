@@ -16,11 +16,16 @@ from scipy.stats import gaussian_kde
 #from multiprocessing import Pool
 #from multiprocessing import Process,Queues
 
-
-
-FILENAME_OUTPUT_PARAMETERS = 'parameters_apague.dat'
 # MILES=5, COELHO=4
 LIB = 4
+
+FILENAME_OUTPUT_PARAMETERS = 'Avg_par.dat'
+
+if (LIB=4):
+        FILENAME_OUTPUT_PARAMETERS = 'Avg_par_Coelho.dat'
+
+if (LIB=5):
+        FILENAME_OUTPUT_PARAMETERS = 'Avg_par_Miles.dat'        
 
 #the main program starts here
 
@@ -57,7 +62,7 @@ def bissec(A,x):
     return n1
 
 
-##################################################FLAG.DAT###########################################################
+################################################## FLAG.DAT ###########################################################
 
 # this function builds the flag.dat file containing etoile input parameters
 def genflag(type):
@@ -95,37 +100,7 @@ def genflag(type):
                      'Convolve..................... 0\n     Graph........................ 0\n     '
                      'Write........................ 1\n     Number_Of_Degrees_Of_Freedom. 4')
 
-
-##################################################ETOILE###########################################################
-
-
-# set parameters to run etoile in one line depending on goal (derive RV, derive atmos.param., compare)
-def run_etoile(inptf, LIB, modeconf):
-    
-    #simplifying the name
-    sname = inptf.split('.')[0]
-    #logging etoile outputs
-    logf = open('etoile_'+sname+'.log', 'w')
-    print('running etoile for '+sname+' ...'),
-    #Etoile is open in a subprocess
-    pr = sp.Popen(['./etoile'], shell=True, close_fds=True,
-             stdin=sp.PIPE, stdout=logf)
-    #depending on the running mode, different inputs must be given
-    if modeconf['deratmos'] == 1:
-        pr.communicate('0\n'+inptf+'\n'+inptf.split('.')[0]+'\n'+str(LIB)+'\n')
-    elif modeconf['derrv'] != 0:
-        pr.communicate('0\n'+inptf+'\n'+inptf.split('.')[0]+'\n'+str(LIB)+'\n2.5\n')
-    elif modeconf['compare'] != 0:
-        if is_number(modeconf['compare']):
-            #if the key 'compare' is a number, it must represent a library index
-            pr.communicate('0\n'+inptf+'\n'+inptf.split('.')[0]+'\n'+str(LIB)+'\n'+str(modeconf['compare'])+'\n')
-        else:
-            #if not, must be a filename
-            prefix = modeconf['compare'].split('.')[0]
-            pr.communicate('0\n'+inptf+'\n'+inptf.split('.')[0]+'\n0\n'+modeconf['compare']+'\n'+prefix+'\n')
-    print(' done.')
-
-##################################################INDEX###########################################################
+################################################## GETINDEX ###########################################################
 
 #find star number in library, the bestmatch 
 
@@ -160,7 +135,7 @@ def get_index():
 
 
 
-##################################################RV###########################################################
+################################################## RV ###########################################################
 
 
 # run ETOILE to find best RV CC ref for each star
@@ -199,15 +174,13 @@ genflag('deratmos')
 
 #running etoile for each star
 for f in inlist:
-    run_etoile(f, LIB, mconf)
-  
+    os.system('printf "%d\n%s.ascii\n%s\n%d\n" | ./etoile') % (0,f,f,LIB)
+    print "%s_firstrun..........OK!\n" %f
+os.system('rm spec2plot.tab')
 
 #getting the best matching library indexes
-#os.system('rm etoile*.log')
 
-
-bestmatch = 892
-#bestmatch = get_index()
+bestmatch = get_index()
 
 #building template file
 with open('../code/dnm/templatesForCC.txt', 'w') as tplf:
@@ -226,10 +199,11 @@ genflag('derrv')
 
 #running etoile to DERIVE RADIAL VELOCITY
 for f in inlist:
-    run_etoile(f, LIB, mconf)
+    os.system('printf "%d\n%s\n%s\n%d\n%f\n" | ./etoile') % (0,f,f,LIB,2.5)
+    print "%s_DeriveRV..........OK!\n" %f
+os.system('rm spec2plot.tab')
 
-
-#NOW create radualVelocities.dat
+#NOW create radialVelocities.dat
 
 # Correct RV
 
@@ -307,9 +281,15 @@ mconf['compare'] = 'none'
 #FLAG creation 
 genflag('deratmos')
 
+#colocar a melhor estrela o index 
+#for f in inlist:
+#    os.system('printf "%d.ascii\n%s\n%s\n%d\n" | ./etoile') % (0,f,f,LIB)
+    
+#os.system('rm spec2plot.tab')
 
 for f in inlist:
     run_etoile('rv_'+f, LIB, mconf)
+    print "%s_finalrun..........OK!\n" %f
 os.remove('spec2plot.tab')
 
 #generating best fit file tables
